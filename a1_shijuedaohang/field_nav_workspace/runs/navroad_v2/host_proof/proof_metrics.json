@@ -1,0 +1,17 @@
+{
+  "split": "test",
+  "samples": 32,
+  "threshold": 0.45,
+  "mean_iou": 0.49924806545337924,
+  "median_iou": 0.4751195966880043,
+  "valid_navline_samples": 32,
+  "invalid_navline_samples": 0,
+  "target_valid_navline_samples": 31,
+  "mean_line_error_px_original720": 86.92143173487428,
+  "mean_crop_bottom_error_px_original720": 100.02548426407729,
+  "overlays_dir": "D:\\1.1.1.1.1\\field_nav_workspace\\runs\\navroad_v2\\host_proof\\overlays",
+  "pred_masks_dir": "D:\\1.1.1.1.1\\field_nav_workspace\\runs\\navroad_v2\\host_proof\\pred_masks",
+  "samples_csv": "D:\\1.1.1.1.1\\field_nav_workspace\\runs\\navroad_v2\\host_proof\\proof_samples.csv",
+  "contact_sheet": "D:\\1.1.1.1.1\\field_nav_workspace\\runs\\navroad_v2\\host_proof\\contact_sheet.jpg",
+  "note": "Yellow line is predicted navigation line; green line is target-mask reference line."
+}

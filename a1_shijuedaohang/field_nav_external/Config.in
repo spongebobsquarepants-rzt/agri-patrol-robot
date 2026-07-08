@@ -1,0 +1,6 @@
+menu "field navigation"
+
+source "$BR2_EXTERNAL_FIELD_NAV_PATH/package/field_nav_demo/Config.in"
+
+endmenu
+

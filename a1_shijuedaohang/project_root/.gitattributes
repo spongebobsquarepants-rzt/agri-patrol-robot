@@ -1,0 +1,28 @@
+* text=auto
+
+.gitattributes text eol=lf
+.gitignore text eol=lf
+*.bat text eol=crlf
+*.cmake text eol=lf
+*.cpp text eol=lf
+*.h text eol=lf
+*.hpp text eol=lf
+*.in text eol=lf
+*.md text eol=lf
+*.mk text eol=lf
+*.py text eol=lf
+*.sh text eol=lf
+*.desc text eol=lf
+*_defconfig text eol=lf
+*.defconfig text eol=lf
+CMakeLists.txt text eol=lf
+Config.in text eol=lf
+Makefile text eol=lf
+
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.pt binary
+*.pth binary
+*.onnx binary
+*.m1model binary

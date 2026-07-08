@@ -1,0 +1,22 @@
+{
+  "best_epoch": 64,
+  "best_val": {
+    "loss": 0.9000136107206345,
+    "iou": 0.44380943896248937,
+    "mean_center_error_px": 54.108723936873325,
+    "mean_bottom_error_px": 59.962960532506976,
+    "invalid_centerline_samples": 0
+  },
+  "best_score": 0.4395821949049211,
+  "onnx": "field_nav_workspace\\runs\\navroad_v2\\navroad_640x480.onnx",
+  "config": {
+    "width_mult": 1.0,
+    "input_shape": [
+      1,
+      480,
+      640
+    ],
+    "output_stride": 4,
+    "loss": "0.70*bce + dice + 0.40*focal_bce"
+  }
+}

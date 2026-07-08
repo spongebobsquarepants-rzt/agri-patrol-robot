@@ -1,0 +1,274 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>农业巡检 APP</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--green:#2d6a4f;--green-light:#40916c;--bg:#f0f5f0;--card:#fff;--text:#1b1b1b;--sub:#666;--danger:#d62828;--warn:#f77f00;--tag-bg:#e9f5ec}
+body{font-family:-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;position:relative}
+header{background:var(--green);color:#fff;padding:14px 20px;text-align:center;font-size:18px;font-weight:700;position:sticky;top:0;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.tabs{display:flex;position:sticky;top:52px;z-index:9;background:var(--card);border-bottom:1px solid #e0e0e0}
+.tab{flex:1;text-align:center;padding:12px 0;font-size:14px;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;transition:.2s}
+.tab.active{color:var(--green);border-bottom-color:var(--green);font-weight:600}
+.panel{display:none;padding:16px;padding-bottom:80px}
+.panel.active{display:block}
+/* 统计卡片 */
+.stat-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.stat-card{background:var(--card);border-radius:12px;padding:16px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.stat-card .num{font-size:32px;font-weight:800;color:var(--green)}
+.stat-card .label{font-size:12px;color:var(--sub);margin-top:4px}
+.stat-card.warn .num{color:var(--danger)}
+/* 检测卡片 */
+.card{background:var(--card);border-radius:12px;padding:12px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,.06);display:flex;gap:12px}
+.card img{width:90px;height:90px;border-radius:8px;object-fit:cover;flex-shrink:0;background:#e0e0e0}
+.card .info{flex:1;min-width:0}
+.card .title{font-size:15px;font-weight:700;margin-bottom:2px}
+.card .meta{font-size:12px;color:var(--sub);margin-bottom:2px}
+.card .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;margin-top:4px}
+.badge-high{background:#e8f5e9;color:var(--green)}
+.badge-mid{background:#fff3e0;color:var(--warn)}
+.badge-low{background:#ffebee;color:var(--danger)}
+/* 地图 */
+#map{width:100%;height:calc(100vh - 170px);border-radius:12px;overflow:hidden;z-index:0}
+/* stats table */
+.stat-table{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.stat-row{display:flex;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #f0f0f0;font-size:14px}
+.stat-row:last-child{border-bottom:none}
+.stat-row .count{font-weight:700;color:var(--green)}
+/* loading */
+.loading{text-align:center;padding:40px;color:var(--sub)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:32px;height:32px;border:3px solid #e0e0e0;border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+.empty{text-align:center;padding:60px 20px;color:var(--sub)}
+.empty svg{width:60px;height:60px;margin-bottom:12px;opacity:.3}
+/* refresh */
+.refresh-btn{position:absolute;bottom:16px;right:16px;width:44px;height:44px;background:var(--green);color:#fff;border:none;border-radius:50%;font-size:20px;cursor:pointer;box-shadow:0 4px 12px rgba(45,106,79,.4);z-index:100;display:flex;align-items:center;justify-content:center}
+.refresh-btn:active{transform:scale(.95)}
+/* detail modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:200;justify-content:center;align-items:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border-radius:16px;width:90%;max-width:400px;max-height:80vh;overflow-y:auto;padding:20px}
+.modal img{width:100%;border-radius:8px;margin-bottom:12px}
+.modal h3{margin-bottom:8px}
+.modal p{font-size:14px;color:var(--sub);margin-bottom:4px}
+.modal .close{float:right;width:30px;height:30px;border:none;background:#f0f0f0;border-radius:50%;font-size:16px;cursor:pointer}
+/* gps tag */
+.gps-tag{font-size:11px;color:var(--green);background:var(--tag-bg);padding:1px 6px;border-radius:4px;margin-left:4px}
+/* leaflet overrides */
+.leaflet-popup-content{font-size:13px;margin:8px 12px}
+.leaflet-popup-content img{width:100%;max-height:120px;object-fit:cover;border-radius:6px;margin:6px 0}
+</style>
+</head>
+<body>
+
+<header>🌾 农业病虫害巡检</header>
+
+<div class="tabs">
+  <div class="tab active" data-panel="list">📋 检测列表</div>
+  <div class="tab" data-panel="map">🗺️ GPS 地图</div>
+  <div class="tab" data-panel="stats">📊 统计</div>
+</div>
+
+<!-- 检测列表 -->
+<div id="list" class="panel active">
+  <div id="list-content" class="loading"><div class="spinner"></div>加载中...</div>
+</div>
+
+<!-- 地图 -->
+<div id="map-panel" class="panel">
+  <div id="map"></div>
+</div>
+
+<!-- 统计 -->
+<div id="stats-panel" class="panel">
+  <div class="stat-cards" id="stat-cards"></div>
+  <div class="stat-table" id="stat-table"></div>
+</div>
+
+<!-- 详情弹窗 -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-body"></div>
+</div>
+
+<button class="refresh-btn" onclick="refreshAll()" title="刷新">↻</button>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ============================================================
+// 配置
+// ============================================================
+const API = "";  // 同源，空字符串即可
+
+// ============================================================
+// Tab 切换
+// ============================================================
+document.querySelectorAll(".tab").forEach(t => {
+  t.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(x => x.classList.remove("active"));
+    t.classList.add("active");
+    const pid = t.dataset.panel + (t.dataset.panel === "stats" ? "-panel" : t.dataset.panel === "map" ? "-panel" : "");
+    document.getElementById(t.dataset.panel === "stats" ? "stats-panel" : t.dataset.panel === "map" ? "map-panel" : "list").classList.add("active");
+    if (t.dataset.panel === "map") setTimeout(() => map.invalidateSize(), 100);
+  });
+});
+
+// ============================================================
+// 加载数据
+// ============================================================
+async function fetchData() {
+  const resp = await fetch(API + "/api/detections?limit=200");
+  if (!resp.ok) throw new Error("请求失败");
+  return resp.json();
+}
+
+async function fetchStats() {
+  const resp = await fetch(API + "/api/stats");
+  if (!resp.ok) throw new Error("请求失败");
+  return resp.json();
+}
+
+// ============================================================
+// 置信度 badge
+// ============================================================
+function badge(conf) {
+  const pct = (conf * 100).toFixed(0) + "%";
+  if (conf >= 0.8) return `<span class="badge badge-high">高 ${pct}</span>`;
+  if (conf >= 0.5) return `<span class="badge badge-mid">中 ${pct}</span>`;
+  return `<span class="badge badge-low">低 ${pct}</span>`;
+}
+
+// ============================================================
+// 渲染检测列表
+// ============================================================
+async function renderList() {
+  const el = document.getElementById("list-content");
+  try {
+    const data = await fetchData();
+    if (!data.items.length) {
+      el.innerHTML = `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><p>暂无检测记录</p><p style="font-size:12px;margin-top:4px">巡查车运行后自动出现数据</p></div>`;
+      return;
+    }
+    el.innerHTML = data.items.map(r => `
+      <div class="card" onclick="showDetail('${r.id}')">
+        <img src="${r.image_url}" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2290%22 height=%2290%22><rect fill=%22%23e0e0e0%22 width=%2290%22 height=%2290%22/><text x=%2245%22 y=%2250%22 text-anchor=%22middle%22 fill=%22%23999%22 font-size=%2210%22>无图</text></svg>'">
+        <div class="info">
+          <div class="title">🐛 ${r.class_name}</div>
+          <div class="meta">${r.timestamp}</div>
+          <div class="meta">
+            📍 ${r.gps.lat.toFixed(4)}, ${r.gps.lon.toFixed(4)}
+            ${r.gps.lat ? '<span class="gps-tag">GPS</span>' : ''}
+          </div>
+          ${badge(r.confidence)}
+        </div>
+      </div>
+    `).join("");
+  } catch (e) {
+    el.innerHTML = `<div class="empty"><p>⚠️ 无法连接服务器</p><p style="font-size:12px">请确认后端已启动</p></div>`;
+  }
+}
+
+// ============================================================
+// 地图
+// ============================================================
+let map;
+function initMap() {
+  map = L.map("map").setView([35, 110], 5);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: '&copy; OpenStreetMap',
+    maxZoom: 19,
+  }).addTo(map);
+}
+
+async function renderMap() {
+  if (!map) initMap();
+  try {
+    const data = await fetchData();
+    const markers = [];
+    data.items.forEach(r => {
+      if (!r.gps.lat || !r.gps.lon) return;
+      const m = L.marker([r.gps.lat, r.gps.lon])
+        .bindPopup(`
+          <b>${r.class_name}</b><br>
+          <img src="${r.image_url}" onerror="this.style.display='none'"><br>
+          置信度: ${(r.confidence*100).toFixed(0)}%<br>
+          ${r.timestamp}
+        `);
+      markers.push(m);
+    });
+    // 清除旧标记
+    map.eachLayer(l => { if (l instanceof L.Marker) map.removeLayer(l); });
+    markers.forEach(m => m.addTo(map));
+    if (markers.length === 1) {
+      map.setView(markers[0].getLatLng(), 16);
+    } else if (markers.length > 1) {
+      const group = L.featureGroup(markers);
+      map.fitBounds(group.getBounds().pad(0.2));
+    }
+  } catch (e) {
+    // 地图加载失败，静默
+  }
+}
+
+// ============================================================
+// 统计
+// ============================================================
+async function renderStats() {
+  try {
+    const data = await fetchStats();
+    document.getElementById("stat-cards").innerHTML = `
+      <div class="stat-card ${data.total_detections > 10 ? 'warn' : ''}">
+        <div class="num">${data.total_detections}</div>
+        <div class="label">检测总数</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">${Object.keys(data.by_class).length}</div>
+        <div class="label">病虫害种类</div>
+      </div>
+    `;
+    const rows = Object.entries(data.by_class)
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => `<div class="stat-row"><span>🐛 ${name}</span><span class="count">${count} 次</span></div>`)
+      .join("");
+    document.getElementById("stat-table").innerHTML = rows || '<div class="stat-row" style="justify-content:center;color:#999">暂无数据</div>';
+  } catch (e) {
+    document.getElementById("stat-cards").innerHTML = '<div class="empty" style="grid-column:1/-1"><p>⚠️ 加载失败</p></div>';
+  }
+}
+
+// ============================================================
+// 详情弹窗
+// ============================================================
+async function showDetail(id) {
+  try {
+    const resp = await fetch(API + "/api/detections/" + id);
+    const r = await resp.json();
+    if (r.error) return;
+    document.getElementById("modal-body").innerHTML = `
+      <button class="close" onclick="closeModal()">✕</button>
+      <img src="${r.image_url}" onerror="this.style.display='none'">
+      <h3>🐛 ${r.class_name}</h3>
+      <p>置信度: ${(r.confidence*100).toFixed(1)}%</p>
+      <p>边界框: (${r.bbox.x}, ${r.bbox.y}) ${r.bbox.w}×${r.bbox.h}</p>
+      <p>GPS: ${r.gps.lat.toFixed(4)}, ${r.gps.lon.toFixed(4)}</p>
+      <p>时间: ${r.timestamp}</p>
+    `;
+    document.getElementById("modal-overlay").classList.add("show");
+  } catch (e) {}
+}
+function closeModal() { document.getElementById("modal-overlay").classList.remove("show"); }
+document.getElementById("modal-overlay").addEventListener("click", function(e){ if(e.target===this) closeModal(); });
+
+// ============================================================
+// 全局刷新 & 初始化
+// ============================================================
+async function refreshAll() {
+  await Promise.all([renderList(), renderStats(), renderMap().catch(()=>{})]);
+}
+refreshAll();
+</script>
+</body>
+</html>

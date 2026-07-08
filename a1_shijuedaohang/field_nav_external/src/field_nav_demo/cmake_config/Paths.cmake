@@ -1,0 +1,13 @@
+set(SDK_ROOT "$ENV{BASE_DIR}/$ENV{EXPORT_LIB_M1_SDK_ROOT_PATH}" CACHE PATH "SDK root directory")
+set(THIRD_PARTY_DIR "${SDK_ROOT}/third_party" CACHE PATH "Third-party libraries directory")
+set(M1_SDK_INC_DIR "${SDK_ROOT}/include" CACHE PATH "M1-SDK include directory")
+set(M1_SDK_LIB_DIR "${SDK_ROOT}/lib" CACHE PATH "M1-SDK libraries directory")
+
+set(M1_SSNE_LIB        "${M1_SDK_LIB_DIR}/libssne.so"       CACHE STRING INTERNAL)
+set(M1_CMABUFFER_LIB   "${M1_SDK_LIB_DIR}/libcmabuffer.so"  CACHE STRING INTERNAL)
+set(M1_OSD_LIB         "${M1_SDK_LIB_DIR}/libosd.so"        CACHE STRING INTERNAL)
+set(M1_GPIO_LIB        "${M1_SDK_LIB_DIR}/libgpio.so"       CACHE STRING INTERNAL)
+set(M1_UART_LIB        "${M1_SDK_LIB_DIR}/libuart.so"       CACHE STRING INTERNAL)
+set(M1_SSZLOG_LIB      "${M1_SDK_LIB_DIR}/libsszlog.so"     CACHE STRING INTERNAL)
+set(M1_ZLOG_LIB        "${M1_SDK_LIB_DIR}/libzlog.so"       CACHE STRING INTERNAL)
+set(M1_EMB_LIB         "${M1_SDK_LIB_DIR}/libemb.so"        CACHE STRING INTERNAL)

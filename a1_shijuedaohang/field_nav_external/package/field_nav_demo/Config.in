@@ -1,0 +1,12 @@
+config BR2_PACKAGE_FIELD_NAV_DEMO
+	bool "field_nav_demo"
+	select BR2_PACKAGE_M1_SDK_LIB
+	help
+	  Field road segmentation and navigation line OSD demo for A1.
+
+config BR2_FIELD_NAV_MODEL_PATH
+	string "field navigation model path"
+	default "app_assets/models/navroad_640x480.m1model"
+	depends on BR2_PACKAGE_FIELD_NAV_DEMO
+	help
+	  Model path relative to /field_nav on the target rootfs.

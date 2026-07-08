@@ -1,0 +1,56 @@
+# Local Git metadata from nested SDK checkout
+data/A1_SDK_SC132GS/.git/
+
+# Large local tools and archives
+Aurora-2.0.0-ciciec.14/
+a1-sdk-builder-latest.tar
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.7z
+*.rar
+
+# Raw and derived datasets
+智慧农业田垄采摘机器人道路识别农作物过道区域识别分割数据集labelme格式211张2类别/
+field_nav_workspace/data/
+field_nav_workspace/runs/
+
+# Keep only the field navigation external package from the SDK tree
+data/A1_SDK_SC132GS/*
+!data/A1_SDK_SC132GS/smartsens_sdk/
+data/A1_SDK_SC132GS/smartsens_sdk/*
+!data/A1_SDK_SC132GS/smartsens_sdk/field_nav_external/
+!data/A1_SDK_SC132GS/smartsens_sdk/field_nav_external/**
+
+# Buildroot and SDK generated or downloaded artifacts
+data/A1_SDK_SC132GS/smartsens_sdk/cache/
+data/A1_SDK_SC132GS/smartsens_sdk/dl/
+data/A1_SDK_SC132GS/smartsens_sdk/output/
+data/A1_SDK_SC132GS/smartsens_sdk/.config
+data/A1_SDK_SC132GS/smartsens_sdk/.config.old
+data/A1_SDK_SC132GS/smartsens_sdk/..config.tmp
+
+# Python and local runtime cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+Thumbs.db
+Desktop.ini
+
+# Model training checkpoints and exported research artifacts outside board assets
+*.pt
+*.pth
+*.onnx
+!data/A1_SDK_SC132GS/smartsens_sdk/field_nav_external/src/field_nav_demo/app_assets/models/*.m1model
